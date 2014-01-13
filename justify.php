@@ -6,7 +6,7 @@ if (!isset($argv[1])) {
 } elseif (!isset($argv[2])) {
 	die("Specify output file name\n");
 } else {
-	define('N', 80, FALSE);
+	define('N', 80);
 
 	$inputFileName = $argv[1];
 	$outputFileName = $argv[2];
@@ -15,27 +15,36 @@ if (!isset($argv[1])) {
 
 		$inputFile = fopen($inputFileName, 'r');
 		echo "Opened input file: {$inputFileName}\n";
-
-		while(!feof($inputFile)) {
-			$str = fgets($inputFile);
-			$q = new SplQueue();
-
-			$q->enqueue(2);
-			$q->enqueue(3);
-			var_dump($q);
-			exit;
-			if (strlen($str) < (N / 2)) {
-				var_dump('HEADER');
-			} else {
-				var_dump('Simple');
-			}
-			// var_dump(strlen(fgets($inputFile)));
-		}
-
 		$outputFile = fopen($outputFileName, 'w');
-		// write to output file here
-		fclose($outputFile);
+		echo "Opened output file: {$outputFileName}\n";
 
+		$content = fread($inputFile, filesize($inputFileName));
+		var_dump(strpos($content, PHP_EOL));
+		/*
+		$nExploded = array_map(
+			function($s) {
+				return trim($s);
+			},
+			explode("\n", $content)
+		);
+		*/
+		// var_dump(explode('.' . PHP_EOL, $content));
+		// exit;
+		var_dump(explode('|', str_replace(".".PHP_EOL, '|', $content)));
+		/*
+		foreach ($nExploded as $str) {
+			if (strlen($str) <= (N / 2)) {
+				fwrite($outputFile, "    {$str}\n");
+			} else {
+
+			}
+		}
+		*/
+
+
+
+
+		fclose($outputFile);
 		fclose($inputFile);
 	} else {
 		die("Could not open input file: {$inputFileName}\n");
