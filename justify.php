@@ -3,7 +3,7 @@ ini_set('display_errors', 1);
 class Justify {
 	const N = 80;
 
-	protected $_paragraphEndSymbols = array('\.', '!', '?');
+	protected $_paragraphEndSymbols = array('.', '!', '?');
 	/**
 	 * @var string
 	 */
@@ -14,7 +14,7 @@ class Justify {
 	protected $_outputFileName;
 
 	protected $_input;
-	protected $_output;
+	protected $_output = array();
 
 	/**
 	 * Open input and output files
@@ -31,9 +31,62 @@ class Justify {
 			$file = fopen($this->_inputFileName, 'r');
 			$this->_input = fread($file, filesize($this->_inputFileName));
 			fclose($file);
-			echo '/([\w\W]*)\.\n/';
-			preg_match_all('/([\w\W]*)\.\n/', $this->_input, $matches);
-			var_dump($matches);
+
+			$ar = explode(PHP_EOL, $this->_input);
+			$isInParagraph = FALSE;
+			$tmp = '';
+			foreach ($ar as $str) {
+				if (strlen($str) < static::N / 2 && !$isInParagraph) {
+					$this->_output[] = "    {$str}";
+				} else {
+					$isInParagraph = TRUE;
+					// $this->_output[] = $str;
+					$tmp .= $str;
+					if (in_array($str[strlen($str) - 1], $this->_paragraphEndSymbols)) {
+						// $this->_output[] = "\n";
+						// $tmp .= "\n";
+						$tmp = '    ' . $tmp;
+						$offset = 4;
+						// var_dump(static::N);
+						// var_dump(strpos($tmp, ' ', $offset));
+						// while ($offset < strlen($tmp)) {
+							$div = 0;
+							while ($t = strpos($tmp, ' ', $offset)) {
+								$offset = $t;
+								// var_dump($offset / static::N);
+								if (intval($offset / static::N) > $div) {
+									$tmp[strrpos(substr($tmp, 0, $offset), ' ')] = "\n";
+									// $tmp[$offset] = "\n";
+									$div++;
+								}
+								$offset++;
+
+								echo "{$offset}\n";
+							}
+							// var_dump(substr($tmp, 0, $offset));
+							$tmp[strrpos(substr($tmp, 0, $offset), ' ')] = "\n";
+							var_dump($tmp);
+
+							// echo strpos($tmp, ' ', $offset);
+							// var_dump($t);
+							// var_dump(substr($tmp, 0, $offset));
+							exit;
+							// $offset++;
+							// $this->_output[] = $tmp;
+							// $isInParagraph = FALSE;
+							// $tmp = '';
+
+						// }
+					}
+				}
+				// echo strlen($str) . "\n";
+				
+			}
+			var_dump($this->_output);
+			// var_dump($this->_output);
+			// echo '/([\w\W]*)\.\n/';
+			// preg_match_all('/([\w\W]*)\.\n/', $this->_input, $matches);
+			// var_dump($matches);
 //			var_dump(explode('.'.PHP_EOL, $this->_input));
 		} else {
 			die("Could not open input file: {$this->_inputFileName}\n");
