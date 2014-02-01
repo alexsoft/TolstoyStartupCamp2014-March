@@ -168,13 +168,13 @@ class Justify {
 	}
 }
 
-if (!isset($argv[1])) {
+if ($argc === 1) {
 	die("Specify input and output files names\n");
-} elseif (!isset($argv[2])) {
-	die("Specify output file name\n");
-} else {
-	$j = new Justify($argv[1], $argv[2]);
-	if ($j->justify()) {
-		echo "Text was successfully justified!\n";
-	};
 }
+if (!isset($argv[2])) {
+	die("Specify output file name\n");
+}
+$j = new Justify($argv[1], $argv[2]);
+if ($j->justify()) {
+	echo "Text was successfully justified!\n";
+};
