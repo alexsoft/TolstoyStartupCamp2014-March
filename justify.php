@@ -59,7 +59,7 @@ class Justify {
 			$o = fopen($this->_outputFileName, 'w');
 			fwrite($o, implode(PHP_EOL, $this->_output));
 			fclose($o);
-			var_dump($this->_output);
+			// var_dump($this->_output);
 		} else {
 			die("Could not open input file: {$this->_inputFileName}\n");
 		}
@@ -72,19 +72,47 @@ class Justify {
 
 		while ($iteration < floor(mb_strlen($str) / static::N)) {
 			$c = $start + static::N;
-			var_dump($c);
 			if ($str[$c] === ' ') {
 				$spacePos = $c;
 			} else {
 				$sub = mb_substr($str, $start, static::N);
 				$spacePos = $start + mb_strrpos($sub, ' ');
 			}
-			var_dump($spacePos);
 			$str[$spacePos] = PHP_EOL;
 			$start = $spacePos + 1;
 			$iteration++;
 		}
+
+		$str = $this->_justifyParagraph($str);
 		return $str;
+	}
+
+	protected function _justifyParagraph($str) {
+		$rows = explode(PHP_EOL, $str);
+		$k = 0;
+		foreach ($rows as &$row) {
+			if ($k != count($rows) - 1) {
+				$l = mb_strlen($row) - 1;
+
+				$t = ($k == 0) ? mb_strlen($this->_indent) : 0;
+
+				for ($i = $l; $i >= $t; $i--) {
+					if (mb_strlen($row) >= static::N) {
+						break;
+					} else {
+						if ($row[$i] === ' ') {
+							$tmp = mb_substr($row, 0, $i) . '  ' . mb_substr($row, $i+1);
+							// var_dump($tmp);
+							$row = $tmp;
+							var_dump($row);
+						}
+					}
+				}
+			}
+			$k++;
+		}
+		var_dump($rows);
+		return implode(PHP_EOL, $rows);
 	}
 }
 
