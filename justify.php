@@ -3,7 +3,6 @@ ini_set('display_errors', 1);
 
 /**
  * Class Justify
- * $this->_outputFile = fopen($outputFileName, 'w');
  */
 class Justify {
 	const N = 80;
@@ -42,41 +41,50 @@ class Justify {
 			$isInParagraph = FALSE;
 			$tmp = '';
 			foreach ($ar as $str) {
-				if (strlen($str) < static::N / 2 && !$isInParagraph) {
+				if (mb_strlen($str) < static::N / 2 && !$isInParagraph) {
 					$this->_output[] = $this->_indent . $str;
 				} else {
 					$isInParagraph = TRUE;
 					$tmp .= $str;
-					if (in_array($str[strlen($str) - 1], $this->_paragraphEndSymbols)) {
-						$this->_output[] = $this->_indent . $tmp;
+					if (in_array($str[mb_strlen($str) - 1], $this->_paragraphEndSymbols)) {
+
+						$str = $this->_processParagraph($tmp);
+						$this->_output[] = $str;
+
 						$tmp = '';
 						$isInParagraph = FALSE;
-						/*
-						$finishStr = '    ';
-						$explodedString = explode(' ', $tmp);
-						$divv = 0;
-						foreach ($explodedString as $s) {
-							$l = strlen($finishStr) + strlen($s);
-							if (intval($l / static::N) < $divv) {
-								$finishStr .= ' ' . $s;
-							} else {
-								$finishStr .= PHP_EOL;
-								$divv++;
-								$isInParagraph = FALSE;
-							}
-						}
-						*/
 					}
 				}
-
 			}
-			 var_dump($this->_output);
+			$o = fopen($this->_outputFileName, 'w');
+			fwrite($o, implode(PHP_EOL, $this->_output));
+			fclose($o);
+			var_dump($this->_output);
 		} else {
 			die("Could not open input file: {$this->_inputFileName}\n");
 		}
 	}
 
-	protected function _parse() {
+	protected function _processParagraph($str) {
+		$str = $this->_indent . $str;
+		$iteration = 0;
+		$start = 0;
+
+		while ($iteration < floor(mb_strlen($str) / static::N)) {
+			$c = $start + static::N;
+			var_dump($c);
+			if ($str[$c] === ' ') {
+				$spacePos = $c;
+			} else {
+				$sub = mb_substr($str, $start, static::N);
+				$spacePos = $start + mb_strrpos($sub, ' ');
+			}
+			var_dump($spacePos);
+			$str[$spacePos] = PHP_EOL;
+			$start = $spacePos + 1;
+			$iteration++;
+		}
+		return $str;
 	}
 }
 
