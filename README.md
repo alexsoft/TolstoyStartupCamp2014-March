@@ -1,3 +1,3 @@
 # TolstoyStartupCamp2014
 
-[tolstoy.yandex.ru](http://tolstoy.yandex.ru)
+Моё решение тестового задания для отбора на [TolstoyStartupCamp 2014](http://tolstoy.yandex.ru)
